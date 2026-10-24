@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EcoGuardian | Forest Guardian</title>
+<style>
+:root{font-family:Inter,system-ui,Arial,sans-serif;color:#18352a;background:#f3f7f1}
+*{box-sizing:border-box}body{margin:0}.top{background:#123d2b;color:white;padding:24px max(20px,calc((100% - 1100px)/2))}
+.top h1{margin:0 0 6px;font-size:clamp(1.5rem,3vw,2.2rem)}.top p{margin:0;color:#d3e8d9}
+main{max-width:1100px;margin:24px auto;padding:0 18px}.note{background:#fff6dc;border:1px solid #f1d68a;border-radius:12px;padding:12px 15px;margin-bottom:18px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}.card{background:white;border:1px solid #dfe9de;border-radius:14px;padding:18px;box-shadow:0 3px 12px #143b2610}
+.label{font-size:.9rem;color:#587163}.value{font-size:2rem;font-weight:750;margin:10px 0 4px}.sub{font-size:.85rem;color:#587163}
+.status{display:inline-block;border-radius:30px;padding:6px 10px;background:#dff5e5;color:#176438;font-weight:700;font-size:.85rem}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}button{border:0;border-radius:9px;padding:11px 16px;font-weight:700;cursor:pointer;background:#176b43;color:white}button.secondary{background:#e2ece4;color:#204b34}
+.panel{background:white;border:1px solid #dfe9de;border-radius:14px;padding:18px;margin-top:16px}.panel h2{margin-top:0;font-size:1.15rem}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid #e8eee7;font-size:.9rem}th{color:#587163}
+footer{max-width:1100px;margin:22px auto;padding:0 18px 30px;color:#607267;font-size:.85rem}
+@media(max-width:500px){th,td{padding:7px 4px;font-size:.8rem}}
+</style>
+</head>
+<body>
+<header class="top"><h1>🌲 EcoGuardian</h1><p>AI-assisted early forest-fire detection & emergency awareness</p></header>
+<main>
+<div class="note"><strong>Prototype demo:</strong> readings below are simulated and are not connected to real sensors or emergency services.</div>
+<div class="cards">
+ <section class="card"><div class="label">Temperature</div><div class="value" id="temp">31.4°C</div><div class="sub">Simulated sensor reading</div></section>
+ <section class="card"><div class="label">Smoke / gas level</div><div class="value" id="smoke">118</div><div class="sub">Illustrative relative value</div></section>
+ <section class="card"><div class="label">Fire risk</div><div class="value" id="risk">LOW</div><span class="status" id="status">Monitoring</span></section>
+ <section class="card"><div class="label">Connection</div><div class="value" style="font-size:1.5rem">DEMO</div><div class="sub">No ESP32 connected</div></section>
+</div>
+<div class="actions"><button id="start">Start simulation</button><button class="secondary" id="stop">Stop simulation</button><button class="secondary" id="test">Test alert</button></div>
+<section class="panel"><h2>Recent activity</h2><table><thead><tr><th>Time</th><th>Event</th><th>Reading</th><th>Status</th></tr></thead><tbody id="events"><tr><td>Ready</td><td>Demo initialized</td><td>—</td><td>Monitoring</td></tr></tbody></table></section>
+<section class="panel"><h2>How this prototype works</h2><p>For this demo, JavaScript generates example temperature and smoke values. A real deployment needs calibrated sensors, validated detection logic, reliable communications, and field testing before it can be used for emergency decisions.</p></section>
+</main>
+<footer>EcoGuardian student prototype • Simulated values only • Do not use as a real fire-warning system.</footer>
+<script>
+const $=id=>document.getElementById(id);let timer=null;const events=$('events');
+function addEvent(event,reading,status){const tr=document.createElement('tr');[new Date().toLocaleTimeString(),event,reading,status].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.appendChild(td)});events.prepend(tr);while(events.children.length>8)events.lastElementChild.remove()}
+function reading(){const temp=+(27+Math.random()*28).toFixed(1),smoke=Math.floor(50+Math.random()*650);$('temp').textContent=temp+'°C';$('smoke').textContent=smoke;
+let risk='LOW',status='Monitoring';if(temp>=48||smoke>=500){risk='HIGH';status='ALERT';$('status').style.background='#ffe0d8';$('status').style.color='#9d2d16';addEvent('Potential fire risk',`${temp}°C / ${smoke}`,'Alert demo')}else if(temp>=40||smoke>=300){risk='MEDIUM';status='Caution';$('status').style.background='#fff0c2';$('status').style.color='#805b00';addEvent('Elevated reading',`${temp}°C / ${smoke}`,'Caution')}else{ $('status').style.background='#dff5e5';$('status').style.color='#176438'; if(Math.random()>.6)addEvent('Normal reading',`${temp}°C / ${smoke}`,'Monitoring')}
+$('risk').textContent=risk;$('status').textContent=status}
+$('start').onclick=()=>{if(timer)return;reading();timer=setInterval(reading,2500);addEvent('Simulation started','—','Demo')};
+$('stop').onclick=()=>{if(timer)clearInterval(timer);timer=null;addEvent('Simulation stopped','—','Paused')};
+$('test').onclick=()=>{ $('risk').textContent='TEST';$('status').textContent='Test alert only';$('status').style.background='#ffe0d8';$('status').style.color='#9d2d16';addEvent('Manual test alert','Simulated','TEST ONLY')};
+</script>
+</body></html>
